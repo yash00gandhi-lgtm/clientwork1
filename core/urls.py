@@ -20,19 +20,16 @@ from django.shortcuts import redirect
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # 🔐 Auth (API only)
+    # 🔐 Auth
     path('api/auth/', include('accounts.urls')),
+
+    # 🎨 Frontend
     path('', include('frontend.urls')),
+    path('', include('dashboard.urls')),
 
-    # 🔥 FRONTEND ROUTES (NO /api/)
-    path('', include('dashboard.urls')),   # "/" + dashboard
-    path('', include('leads.urls')),       # "/join/"
-    path('', include('bookings.urls')),    # "/booking/"
-
-    # 🔥 APIs (OPTIONAL - agar alag rakhna chahe)
-    path('api/', include('dashboard.urls')),
+    # 🚀 API ONLY
     path('api/', include('leads.urls')),
-    path('api/auth/', include('accounts.urls')),
-    path('api/automation/', include('automation.urls')),
     path('api/', include('bookings.urls')),
+    path('api/', include('dashboard.urls')),
+    path('api/automation/', include('automation.urls')),
 ]

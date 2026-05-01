@@ -797,8 +797,11 @@
 
       const data = await res.json();
 
-if (!data.key) {
-    alert("Payment error: Razorpay key missing");
+if (!res.ok) {
+    alert(data.error || "Payment failed");
+    btnText.style.display = 'inline';
+    btnSpinner.style.display = 'none';
+    btn.disabled = false;
     return;
 }
 

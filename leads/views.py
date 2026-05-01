@@ -168,28 +168,49 @@ class LeadViewSet(ModelViewSet):
 # 💳 PAYMENT CREATE
 # ========================
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.conf import settings
+import json
+import razorpay
+from leads.models import Payment
+
+
 @csrf_exempt
 def create_payment(request):
-    # ✅ Only POST allowed
+    # =========================
+    # ❌ Only POST allowed
+    # =========================
     if request.method != "POST":
         return JsonResponse({"error": "Only POST allowed"}, status=405)
 
     try:
+        # =========================
         # ✅ Safe JSON parse
+        # =========================
         try:
-            data = json.loads(request.body or "{}")
+            body = request.body.decode("utf-8")
+            data = json.loads(body) if body else {}
         except Exception:
             return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-        # ✅ Env check
+        # =========================
+        # 🔥 ENV DEBUG (IMPORTANT)
+        # =========================
         key_id = getattr(settings, "RAZORPAY_KEY_ID", None)
         key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", None)
+
+        print("🔥 RAZORPAY KEY ID:", key_id)
+        print("🔥 RAZORPAY KEY SECRET:", key_secret)
 
         if not key_id or not key_secret:
             return JsonResponse({"error": "Razorpay key missing"}, status=500)
 
-        # ✅ Amount validation (in paise)
+        # =========================
+        # ✅ Amount validation
+        # =========================
         amount = data.get("amount", 50000)
+
         try:
             amount = int(amount)
             if amount <= 0:
@@ -197,35 +218,57 @@ def create_payment(request):
         except Exception:
             return JsonResponse({"error": "Invalid amount"}, status=400)
 
+        # =========================
+        # ✅ Customer name
+        # =========================
         customer_name = (data.get("customer_name") or "Guest").strip()
 
+        # =========================
         # ✅ Razorpay client
-        client = razorpay.Client(auth=(key_id, key_secret))
+        # =========================
+        try:
+            client = razorpay.Client(auth=(key_id, key_secret))
+        except Exception as e:
+            print("❌ Razorpay client error:", str(e))
+            return JsonResponse({"error": "Razorpay init failed"}, status=500)
 
+        # =========================
         # ✅ Create order
-        order = client.order.create({
-            "amount": amount,
-            "currency": "INR",
-            "payment_capture": 1
-        })
+        # =========================
+        try:
+            order = client.order.create({
+                "amount": amount,
+                "currency": "INR",
+                "payment_capture": 1
+            })
+        except Exception as e:
+            print("❌ Order creation error:", str(e))
+            return JsonResponse({"error": "Order creation failed"}, status=500)
 
-        # ✅ Save in DB
-        Payment.objects.create(
-            amount=amount,
-            order_id=order["id"],
-            customer_name=customer_name
-        )
+        # =========================
+        # ✅ Save Payment
+        # =========================
+        try:
+            Payment.objects.create(
+                amount=amount,
+                order_id=order.get("id"),
+                customer_name=customer_name
+            )
+        except Exception as e:
+            print("❌ DB save error:", str(e))
 
-        # ✅ Response for frontend
+        # =========================
+        # ✅ Final response
+        # =========================
         return JsonResponse({
             "key": key_id,
-            "order_id": order["id"],
+            "order_id": order.get("id"),
             "amount": amount,
             "currency": "INR"
         })
 
     except Exception as e:
-        print("PAYMENT ERROR:", str(e))  # logs me dikhega
+        print("💥 FINAL PAYMENT ERROR:", str(e))
         return JsonResponse({"error": "Server error"}, status=500)
 
 
