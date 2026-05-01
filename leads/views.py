@@ -49,7 +49,7 @@ class LeadViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         with transaction.atomic():
-                    lead = serializer.save()
+            lead = serializer.save()
         print("✅ LEAD CREATED:", lead.email)
 
         # 🔥 AUTOMATION (DEBUG)
@@ -166,6 +166,9 @@ def create_payment(request):
     try:
         data = json.loads(request.body)
 
+        if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+            return JsonResponse({"error": "Razorpay key missing"}, status=500)
+
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
         amount = int(data.get("amount", 50000))
@@ -207,9 +210,7 @@ def verify_payment(request):
     payment = Payment.objects.get(order_id=order_id)
 
     # ✅ USER NAME FIX (optional)
-    if not payment.user.name:
-        payment.user.name = payment.user.username or payment.user.email.split("@")[0]
-        payment.user.save()
+    pass
 
     # ✅ SAVE PAYMENT DATA
     payment.payment_id = payment_id
@@ -219,7 +220,7 @@ def verify_payment(request):
 
     # ✅ BOOKING CREATE
     Booking.objects.create(
-        user=payment.user,
+        name=payment.customer_name,
         plan="Gym Membership",
         status="confirmed"
     )

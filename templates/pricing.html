@@ -797,6 +797,11 @@
 
       const data = await res.json();
 
+if (!data.key) {
+    alert("Payment error: Razorpay key missing");
+    return;
+}
+
       // ✅ FIRST define variable OUTSIDE
 const customerName = prompt("Enter your name");
 

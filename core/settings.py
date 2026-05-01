@@ -1,7 +1,9 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv()  # local ke liye
+
+print("RAZORPAY KEY:", os.environ.get("RAZORPAY_KEY_ID"))
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -94,7 +96,7 @@ DATABASES = {
 # ========================
 # 🔐 AUTH
 # ========================
-AUTH_USER_MODEL = 'accounts.User'
+LOGIN_URL = '/api/auth/login/'
 
 
 # ========================
