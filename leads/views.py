@@ -170,39 +170,63 @@ class LeadViewSet(ModelViewSet):
 
 @csrf_exempt
 def create_payment(request):
-    try:
-        data = json.loads(request.body)
+    # ✅ Only POST allowed
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
 
-        if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+    try:
+        # ✅ Safe JSON parse
+        try:
+            data = json.loads(request.body or "{}")
+        except Exception:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        # ✅ Env check
+        key_id = getattr(settings, "RAZORPAY_KEY_ID", None)
+        key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", None)
+
+        if not key_id or not key_secret:
             return JsonResponse({"error": "Razorpay key missing"}, status=500)
 
-        client = razorpay.Client(
-            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-        )
+        # ✅ Amount validation (in paise)
+        amount = data.get("amount", 50000)
+        try:
+            amount = int(amount)
+            if amount <= 0:
+                raise ValueError()
+        except Exception:
+            return JsonResponse({"error": "Invalid amount"}, status=400)
 
-        amount = int(data.get("amount", 50000))
+        customer_name = (data.get("customer_name") or "Guest").strip()
 
+        # ✅ Razorpay client
+        client = razorpay.Client(auth=(key_id, key_secret))
+
+        # ✅ Create order
         order = client.order.create({
             "amount": amount,
             "currency": "INR",
             "payment_capture": 1
         })
 
+        # ✅ Save in DB
         Payment.objects.create(
             amount=amount,
-            order_id=order['id'],
-            customer_name=data.get("customer_name", "Guest")
+            order_id=order["id"],
+            customer_name=customer_name
         )
 
+        # ✅ Response for frontend
         return JsonResponse({
-            "key": settings.RAZORPAY_KEY_ID,
-            "order_id": order['id'],
+            "key": key_id,
+            "order_id": order["id"],
             "amount": amount,
             "currency": "INR"
         })
 
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        print("PAYMENT ERROR:", str(e))  # logs me dikhega
+        return JsonResponse({"error": "Server error"}, status=500)
 
 
 # ========================
