@@ -9,15 +9,23 @@ from datetime import date, time
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from bookings.models import Booking
-from .models import Lead
-from .serializers import LeadSerializer
-from .models import Payment
-from automation.utils import send_lead_notification
-from bookings.models import Booking
-from leads.models import Lead
-
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+import razorpay
+import json
+
+from bookings.models import Booking
+from .models import Lead, Payment
+from .serializers import LeadSerializer
+from automation.utils import send_lead_notification
+
+
+# ========================
+# 🌐 PAGES
+# ========================
 
 def pricing_page(request):
     return render(request, "pricing.html")
@@ -32,45 +40,46 @@ def invoice_page(request):
     return render(request, "invoice.html")
 
 
+# ========================
+# 🚀 LEAD VIEWSET
+# ========================
+
 class LeadViewSet(ModelViewSet):
     queryset = Lead.objects.all().order_by('-created_at')
     serializer_class = LeadSerializer
     permission_classes = []
 
-    # 🔍 FILTER / SEARCH / ORDER
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['status']
     search_fields = ['name', 'phone', 'email']
     ordering_fields = ['created_at']
 
-    # 🚀 CREATE (AUTOMATION TRIGGER)
+    # 🔥 CREATE LEAD
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        with transaction.atomic():
-            lead = serializer.save()
-        print("✅ LEAD CREATED:", lead.email)
-
-        # 🔥 AUTOMATION (DEBUG)
         try:
-            print("🚀 CALLING AUTOMATION...")
-            send_lead_notification(lead)
-            print("✅ AUTOMATION DONE")
-        except Exception as e:
-            print("❌ AUTOMATION ERROR:", str(e))
+            serializer = self.get_serializer(data=request.data)
 
-            # 🔥 AUTOMATION (safe)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=400)
+
+            lead = serializer.save()
+
+            # 🔥 EMAIL AUTOMATION SAFE
             try:
                 send_lead_notification(lead)
             except Exception as e:
-                print("❌ EMAIL FAILED BUT LEAD SAVED:", str(e))
+                print("EMAIL ERROR:", e)
 
-        return Response({
-            "status": "success",
-            "message": "Lead created successfully 🚀",
-            "data": serializer.data
-        }, status=status.HTTP_201_CREATED)
+            return Response({
+                "status": "success",
+                "message": "Lead created successfully"
+            }, status=201)
+
+        except Exception as e:
+            print("LEAD ERROR:", str(e))
+            return Response({
+                "error": str(e)
+            }, status=500)
 
     # 📄 LIST
     def list(self, request, *args, **kwargs):
@@ -122,7 +131,7 @@ class LeadViewSet(ModelViewSet):
             "message": "Lead deleted successfully"
         }, status=status.HTTP_204_NO_CONTENT)
 
-    # 🎯 CONVERT LEAD → BOOKING
+    # 🎯 CONVERT → BOOKING
     @action(detail=True, methods=['post'])
     def convert(self, request, pk=None):
         lead = self.get_object()
@@ -130,8 +139,8 @@ class LeadViewSet(ModelViewSet):
         if lead.status == "converted":
             return Response({
                 "status": "error",
-                "message": "Lead already converted"
-            }, status=status.HTTP_400_BAD_REQUEST)
+                "message": "Already converted"
+            }, status=400)
 
         with transaction.atomic():
             lead.status = "converted"
@@ -150,16 +159,14 @@ class LeadViewSet(ModelViewSet):
 
         return Response({
             "status": "success",
-            "message": "Lead converted to booking 🎯",
+            "message": "Converted to booking",
             "booking_id": booking.id
-        }, status=status.HTTP_201_CREATED)
-    
-import razorpay
-from django.conf import settings
+        }, status=201)
 
-from django.http import JsonResponse
 
-from django.views.decorators.csrf import csrf_exempt
+# ========================
+# 💳 PAYMENT CREATE
+# ========================
 
 @csrf_exempt
 def create_payment(request):
@@ -169,7 +176,9 @@ def create_payment(request):
         if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
             return JsonResponse({"error": "Razorpay key missing"}, status=500)
 
-        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
 
         amount = int(data.get("amount", 50000))
 
@@ -186,43 +195,43 @@ def create_payment(request):
         )
 
         return JsonResponse({
-            "order_id": order['id'],
             "key": settings.RAZORPAY_KEY_ID,
-            "amount": amount
+            "order_id": order['id'],
+            "amount": amount,
+            "currency": "INR"
         })
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-import json
-from django.views.decorators.csrf import csrf_exempt
+
+# ========================
+# ✅ PAYMENT VERIFY
+# ========================
 
 @csrf_exempt
 def verify_payment(request):
-    import json
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
 
-    payment_id = data.get("razorpay_payment_id")
-    order_id = data.get("razorpay_order_id")
-    customer_name = data.get("customer_name")
+        payment_id = data.get("razorpay_payment_id")
+        order_id = data.get("razorpay_order_id")
+        customer_name = data.get("customer_name")
 
-    # ✅ FIRST GET PAYMENT
-    payment = Payment.objects.get(order_id=order_id)
+        payment = Payment.objects.get(order_id=order_id)
 
-    # ✅ USER NAME FIX (optional)
-    pass
+        payment.payment_id = payment_id
+        payment.status = "paid"
+        payment.customer_name = customer_name or "Customer"
+        payment.save()
 
-    # ✅ SAVE PAYMENT DATA
-    payment.payment_id = payment_id
-    payment.status = "paid"
-    payment.customer_name = customer_name or "Customer"
-    payment.save()
+        Booking.objects.create(
+            name=payment.customer_name,
+            plan="Gym Membership",
+            status="confirmed"
+        )
 
-    # ✅ BOOKING CREATE
-    Booking.objects.create(
-        name=payment.customer_name,
-        plan="Gym Membership",
-        status="confirmed"
-    )
+        return JsonResponse({"status": "success"})
 
-    return JsonResponse({"status": "success"})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
