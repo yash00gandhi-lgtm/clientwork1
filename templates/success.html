@@ -1,0 +1,244 @@
+{% extends "public_base.html" %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --red: #dc2626;
+    --red-glow: rgba(220, 38, 38, 0.35);
+  }
+
+  .success-root {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+    background: #0a0a0a;
+  }
+
+  /* Animated bg rings */
+  .bg-ring {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .bg-ring-1 {
+    width: 600px; height: 600px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(220,38,38,0.12) 0%, transparent 65%);
+    animation: ringPulse 3s ease-in-out infinite;
+  }
+  .bg-ring-2 {
+    width: 900px; height: 900px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(220,38,38,0.05) 0%, transparent 65%);
+    animation: ringPulse 3s ease-in-out 1s infinite;
+  }
+  @keyframes ringPulse {
+    0%, 100% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%,-50%) scale(1.06); }
+  }
+
+  /* Grid texture */
+  .bg-grid {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 0%, transparent 100%);
+  }
+
+  .success-card {
+    position: relative; z-index: 1;
+    text-align: center;
+    max-width: 480px;
+    width: 100%;
+    animation: cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(32px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Flame icon */
+  .flame-wrap {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: rgba(220,38,38,0.1);
+    border: 1px solid rgba(220,38,38,0.25);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 28px;
+    font-size: 40px;
+    position: relative;
+    animation: flameIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+    box-shadow: 0 0 40px rgba(220,38,38,0.2), 0 0 80px rgba(220,38,38,0.08);
+  }
+  .flame-wrap::before {
+    content: '';
+    position: absolute; inset: -6px;
+    border-radius: 50%;
+    border: 1px solid rgba(220,38,38,0.12);
+    animation: ripple 2s ease-out 0.8s infinite;
+  }
+  .flame-wrap::after {
+    content: '';
+    position: absolute; inset: -14px;
+    border-radius: 50%;
+    border: 1px solid rgba(220,38,38,0.06);
+    animation: ripple 2s ease-out 1.1s infinite;
+  }
+  @keyframes flameIn {
+    from { opacity: 0; transform: scale(0.5) rotate(-15deg); }
+    to { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  @keyframes ripple {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.5); }
+  }
+
+  .success-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 10vw, 80px);
+    letter-spacing: 0.04em;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 10px;
+    animation: fadeUp 0.5s ease 0.45s both;
+  }
+  .success-title .accent { color: var(--red); }
+
+  .success-sub {
+    font-size: 15px;
+    color: #71717a;
+    line-height: 1.7;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease 0.55s both;
+  }
+  .success-sub strong { color: #a1a1aa; font-weight: 500; }
+
+  /* Countdown bar */
+  .redirect-bar {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 100px;
+    padding: 10px 20px;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 13px; color: #52525b;
+    animation: fadeUp 0.5s ease 0.65s both;
+    margin-bottom: 28px;
+  }
+  .countdown-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+    animation: pulse-dot 1s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  #countdown-num { color: #fff; font-weight: 600; }
+
+  /* Progress bar */
+  .progress-track {
+    width: 100%; height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 100px;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease 0.7s both;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red), #f87171);
+    border-radius: 100px;
+    width: 100%;
+    transform-origin: left;
+    animation: countdown 3s linear 0.8s both;
+    box-shadow: 0 0 8px rgba(220,38,38,0.5);
+  }
+  @keyframes countdown {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+  }
+
+  /* Home link */
+  .home-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: #3f3f46;
+    text-decoration: none;
+    margin-top: 24px;
+    transition: color 0.2s;
+    animation: fadeUp 0.5s ease 0.75s both;
+  }
+  .home-link:hover { color: #71717a; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Page-exit transition */
+  .page-exit {
+    animation: pageOut 0.4s ease forwards;
+  }
+  @keyframes pageOut {
+    to { opacity: 0; transform: scale(1.02); }
+  }
+</style>
+
+<div class="success-root">
+  <div class="bg-ring bg-ring-1"></div>
+  <div class="bg-ring bg-ring-2"></div>
+  <div class="bg-grid"></div>
+
+  <div class="success-card">
+    <div class="flame-wrap">🔥</div>
+
+    <h1 class="success-title">You're <span class="accent">In</span> 🔥</h1>
+
+    <p class="success-sub">
+      Your application has been received.<br>
+      <strong>We'll contact you within 24 hours</strong> to get you started.
+    </p>
+
+    <div class="redirect-bar">
+      <span class="countdown-dot"></span>
+      Redirecting in <span id="countdown-num">3</span>s
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill"></div>
+    </div>
+
+    <a href="/" class="home-link">← Back to Home</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  let secs = 3;
+  const el = document.getElementById('countdown-num');
+
+  const tick = setInterval(function() {
+    secs--;
+    if (el) el.textContent = secs;
+    if (secs <= 0) {
+      clearInterval(tick);
+      document.querySelector('.success-card').classList.add('page-exit');
+      setTimeout(function() { window.location.href = '/'; }, 380);
+    }
+  }, 1000);
+})();
+</script>
+
+{% endblock %}

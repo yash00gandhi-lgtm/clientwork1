@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-9" data-animate="fade-up">
+    <div>
+        <div class="flex items-center gap-3 mb-4">
+            <span class="eyebrow">Workflows</span>
+        </div>
+        <h1 class="display-font text-4xl md:text-5xl font-bold tracking-tight text-white">Automation</h1>
+        <p class="text-zinc-500 mt-2.5 text-[15px] max-w-xl">Trigger drip emails, welcome sequences and notifications that work while you train.</p>
+    </div>
+</div>
+
+<!-- HERO ACTION CARD -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+
+    <div class="glass rounded-2xl p-7 lg:col-span-2 relative overflow-hidden" data-animate="fade-up">
+        <!-- decorative glow -->
+        <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full pointer-events-none" style="background: radial-gradient(circle, rgba(220,38,38,0.18), transparent 65%);"></div>
+
+        <div class="relative">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, rgba(220,38,38,0.18), rgba(153,27,27,0.08)); border: 1px solid rgba(220,38,38,0.25);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div class="min-w-0">
+                    <div class="display-font text-[22px] font-semibold text-white leading-tight">Test Email Automation</div>
+                    <p class="text-sm text-zinc-500 mt-1.5 max-w-md">Send a one-off test to confirm your SMTP connection, templates and delivery are firing perfectly.</p>
+                </div>
+            </div>
+
+            <!-- workflow stages -->
+            <div class="flex flex-wrap items-center gap-2.5 mb-7">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/5 bg-white/[0.02]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+                    <span class="text-[12px] text-zinc-300 font-medium">Trigger</span>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3f3f46" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/5 bg-white/[0.02]">
+                    <span class="w-1.5 h-1.5 rounded-full" style="background:#ef4444; box-shadow:0 0 8px #ef4444"></span>
+                    <span class="text-[12px] text-zinc-300 font-medium">Compose</span>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3f3f46" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/5 bg-white/[0.02]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"></span>
+                    <span class="text-[12px] text-zinc-300 font-medium">Send</span>
+                </div>
+            </div>
+
+            <!-- ORIGINAL BUTTON — DO NOT CHANGE onclick or function name -->
+            <button onclick="testEmail()" class="btn-red">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Send Test Email
+            </button>
+
+            <p class="text-[11.5px] text-zinc-600 mt-4 font-medium"> <span class="mono-font text-zinc-500"></span> </p>
+        </div>
+    </div>
+
+    <!-- Side info -->
+    <div class="glass rounded-2xl p-6 flex flex-col" data-animate="fade-up">
+        <h3 class="display-font text-lg font-semibold text-white mb-1">What this does</h3>
+        <p class="text-sm text-zinc-500 mb-5">A safe way to validate your automation pipeline without touching production leads.</p>
+        <ul class="space-y-3 text-[13px] text-zinc-400 flex-1">
+            <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-md bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>Verifies SMTP credentials and rate limits</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-md bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>Renders your default email template</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-md bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span>Confirms the queue worker is healthy</span>
+            </li>
+        </ul>
+        <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between">
+            <span class="text-[11.5px] text-zinc-500 font-semibold tracking-wider uppercase">Status</span>
+            <span class="pill" style="color:#34d399; border-color: rgba(52, 211, 153, 0.25); background: rgba(52, 211, 153, 0.05);">Operational</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* ====== ORIGINAL LOGIC — DO NOT REMOVE ====== */
+function testEmail(){
+    fetch('/api/automation/test/', {method:'POST'})
+    .then(()=>alert("Email Sent"));
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Successful — IRONFORGE</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #050505;
+    --card: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.08);
+    --red-dark: #8B0000;
+    --red-bright: #ff1a1a;
+    --green: #00e676;
+    --green-glow: rgba(0,230,118,0.2);
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.6);
+    --white-faint: rgba(255,255,255,0.3);
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  /* BG RADIAL */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,80,40,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(139,0,0,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* PARTICLE CANVAS */
+  #particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+  .success-wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 560px;
+    padding: 24px;
+  }
+
+  /* ICON */
+  .success-icon-ring {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 40px;
+    opacity: 0;
+  }
+
+  .ring-outer {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(0,230,118,0.3);
+    animation: ringPulse 2.5s ease-in-out infinite;
+  }
+
+  .ring-mid {
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,230,118,0.5);
+    animation: ringPulse 2.5s ease-in-out infinite 0.3s;
+  }
+
+  .icon-circle {
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,230,118,0.15), rgba(0,80,40,0.1));
+    border: 2px solid var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px var(--green-glow), inset 0 0 20px rgba(0,230,118,0.05);
+  }
+
+  .check-svg { width: 32px; height: 32px; }
+  .check-path { stroke-dasharray: 60; stroke-dashoffset: 60; animation: drawCheck 0.6s ease 0.8s forwards; }
+
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+  @keyframes ringPulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+  }
+
+  /* TITLE */
+  .success-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 4px;
+    text-align: center;
+    opacity: 0;
+    background: linear-gradient(135deg, #00e676, #00c853);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .success-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white-faint);
+    text-align: center;
+    margin-bottom: 48px;
+    opacity: 0;
+  }
+
+  /* DETAILS CARD */
+  .details-card {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    backdrop-filter: blur(20px);
+    margin-bottom: 32px;
+    opacity: 0;
+    position: relative;
+    overflow-y: auto;
+  }
+
+  .details-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,230,118,0.4), transparent);
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .detail-row:last-child { border-bottom: none; }
+
+  .detail-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white-faint);
+  }
+
+  .detail-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 1px;
+  }
+
+  .detail-value.highlight {
+    color: var(--green);
+    font-size: 18px;
+  }
+
+  .detail-value.plan-badge {
+    background: linear-gradient(135deg, var(--red-bright), var(--red-dark));
+    padding: 3px 14px;
+    border-radius: 20px;
+    color: white;
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+
+  .txn-id {
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--white-faint);
+    letter-spacing: 1px;
+    word-break: break-all;
+    text-align: right;
+    max-width: 240px;
+  }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    opacity: 0;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  }
+
+  .btn-green {
+    background: linear-gradient(135deg, #00c853, #00a844);
+    color: white;
+    box-shadow: 0 8px 28px rgba(0,200,83,0.3);
+  }
+
+  .btn-green:hover { box-shadow: 0 12px 36px rgba(0,200,83,0.45); transform: translateY(-2px); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--white-dim);
+  }
+
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.35); transform: translateY(-2px); color: var(--white); }
+
+  .confetti-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  @media (max-width: 480px) {
+    .success-title { font-size: 48px; }
+    .btn-row { flex-direction: column; }
+    .success-icon-ring { width: 100px; height: 100px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="success-wrap">
+  <div class="success-icon-ring" id="successIcon">
+    <div class="ring-outer"></div>
+    <div class="ring-mid"></div>
+    <div class="icon-circle">
+      <svg class="check-svg" viewBox="0 0 32 32" fill="none">
+        <path class="check-path" d="M6 16l7 7 13-13" stroke="#00e676" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <h1 class="success-title" id="successTitle">PAYMENT<br>SUCCESSFUL</h1>
+  <p class="success-sub" id="successSub">Your membership is now active</p>
+
+  <div class="details-card" id="detailsCard">
+    <div class="detail-row">
+      <span class="detail-label">Plan</span>
+      <span class="detail-value plan-badge" id="detPlan">Pro</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Amount Paid</span>
+      <span class="detail-value highlight" id="detAmount">₹1,499</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Billing</span>
+      <span class="detail-value" id="detBilling">Monthly</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Transaction ID</span>
+      <span class="txn-id" id="detTxn">pay_XXXXXXXXXXXXXX</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Date</span>
+      <span class="detail-value" id="detDate">—</span>
+    </div>
+  </div>
+
+  <div class="btn-row" id="btnRow">
+    <a href="/" class="btn btn-green">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" fill="white"/><rect x="9" y="2" width="5" height="5" rx="1" fill="white"/><rect x="2" y="9" width="5" height="5" rx="1" fill="white"/><rect x="9" y="9" width="5" height="5" rx="1" fill="white" opacity="0.5"/></svg>
+      Home
+    </a>
+    <a href="/invoice/" class="btn btn-ghost" id="invoiceBtn">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Invoice
+    </a>
+  </div>
+</div>
+
+<script>
+  // ── POPULATE DATA FROM SESSION ──
+  const plan      = sessionStorage.getItem('rzp_plan')       || 'Pro';
+  const amount    = sessionStorage.getItem('rzp_amount')     || '₹1,499';
+  const billing   = sessionStorage.getItem('rzp_billing')    || 'Monthly';
+  const paymentId = sessionStorage.getItem('rzp_payment_id') || 'pay_XXXXXXXXXXXXXX';
+  const orderId   = sessionStorage.getItem('rzp_order_id')   || '';
+
+  document.getElementById('detPlan').textContent    = plan;
+  document.getElementById('detAmount').textContent  = amount;
+  document.getElementById('detBilling').textContent = billing;
+  document.getElementById('detTxn').textContent     = paymentId;
+  document.getElementById('detDate').textContent    = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+
+  // Pass data to invoice page
+  document.getElementById('invoiceBtn').addEventListener('click', function(e) {
+    // Data already in sessionStorage — invoice.html reads it
+  });
+
+  // ── GSAP ENTRANCE ──
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.to('#successIcon',  { opacity: 1, scale: 1, duration: 0.7, delay: 0.2, ease: 'back.out(1.5)' })
+    .to('#successTitle', { opacity: 1, y: 0, duration: 0.6 }, '-=0.2')
+    .to('#successSub',   { opacity: 1, y: 0, duration: 0.5 }, '-=0.4')
+    .to('#detailsCard',  { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
+    .to('#btnRow',       { opacity: 1, y: 0, duration: 0.5 }, '-=0.3');
+
+  gsap.set(['#successTitle','#successSub','#detailsCard','#btnRow'], { y: 20 });
+
+  // ── CONFETTI BURST ──
+  const colors = ['#ff1a1a','#00e676','#ffffff','#cc0000','#00c853','#ff6b6b'];
+
+  function burst() {
+    for (let i = 0; i < 60; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-particle';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.left = '50%';
+      el.style.top  = '30%';
+      document.body.appendChild(el);
+
+      gsap.to(el, {
+        x: (Math.random() - 0.5) * window.innerWidth * 0.8,
+        y: Math.random() * window.innerHeight * 0.7,
+        rotation: Math.random() * 720,
+        opacity: 0,
+        duration: 1.8 + Math.random() * 1,
+        ease: 'power2.out',
+        delay: Math.random() * 0.4,
+        onComplete: () => el.remove()
+      });
+    }
+  }
+
+  setTimeout(burst, 900);
+
+  // ── PARTICLE BG ──
+  const canvas = document.getElementById('particles');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pts = Array.from({ length: 40 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.5 + 0.3,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    a: Math.random() * 0.4 + 0.1
+  }));
+
+  function drawPts() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pts.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,230,118,${p.a})`;
+      ctx.fill();
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width)  p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    });
+    requestAnimationFrame(drawPts);
+  }
+  drawPts();
+
+  window.addEventListener('resize', () => {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-10" data-animate="fade-up">
+    <div>
+        <div class="flex items-center gap-3 mb-4">
+            <span class="eyebrow">Overview</span>
+            <span class="pill text-emerald-400" style="border-color: rgba(52, 211, 153, 0.25); background: rgba(52, 211, 153, 0.05);">Live</span>
+        </div>
+        <h1 class="display-font text-4xl md:text-5xl font-bold tracking-tight text-white">Dashboard</h1>
+        <p class="text-zinc-500 mt-2.5 text-[15px] max-w-xl">Real-time performance across leads, bookings and conversions for Fitness Place.</p>
+    </div>
+    <div class="flex items-center gap-2.5 text-xs text-zinc-500">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></span>
+        <span class="font-medium tracking-wide">Synced just now</span>
+    </div>
+</div>
+
+<!-- KPI GRID -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+
+    <!-- Total Leads -->
+    <div class="glass glass-hover rounded-2xl p-6 relative overflow-hidden" data-animate="fade-up">
+        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full" style="background: radial-gradient(circle, rgba(220,38,38,0.18), transparent 65%);"></div>
+        <div class="relative">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-11 h-11 rounded-xl border border-white/10 bg-white/[0.02] flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <span class="text-[10.5px] font-semibold text-zinc-500 tracking-[0.16em] uppercase">All Time</span>
+            </div>
+            <div class="text-[13px] text-zinc-400 font-medium mb-2">Total Leads</div>
+            <div class="display-font text-[52px] leading-none font-bold tracking-tight text-white">
+                <span id="leads">0</span>
+            </div>
+            <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-[12px]">
+                <span class="text-zinc-500 font-medium">Captured</span>
+                <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+                    Active
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Bookings -->
+    <div class="glass glass-hover rounded-2xl p-6 relative overflow-hidden" data-animate="fade-up">
+        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full" style="background: radial-gradient(circle, rgba(220,38,38,0.18), transparent 65%);"></div>
+        <div class="relative">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-11 h-11 rounded-xl border border-white/10 bg-white/[0.02] flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <span class="text-[10.5px] font-semibold text-zinc-500 tracking-[0.16em] uppercase">All Time</span>
+            </div>
+            <div class="text-[13px] text-zinc-400 font-medium mb-2">Total Bookings</div>
+            <div class="display-font text-[52px] leading-none font-bold tracking-tight text-white">
+                <span id="bookings">0</span>
+            </div>
+            <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-[12px]">
+                <span class="text-zinc-500 font-medium">Confirmed</span>
+                <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+                    Tracking
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Rate -->
+    <div class="glass glass-hover rounded-2xl p-6 relative overflow-hidden" data-animate="fade-up">
+        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full" style="background: radial-gradient(circle, rgba(220,38,38,0.22), transparent 65%);"></div>
+        <div class="relative">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-11 h-11 rounded-xl border border-red-500/20 bg-red-500/[0.04] flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                </div>
+                <span class="text-[10.5px] font-semibold tracking-[0.16em] uppercase" style="color:#ef4444">Performance</span>
+            </div>
+            <div class="text-[13px] text-zinc-400 font-medium mb-2">Conversion Rate</div>
+            <div class="display-font text-[52px] leading-none font-bold tracking-tight text-white">
+                <span id="conversion">0%</span>
+            </div>
+            <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-[12px]">
+                <span class="text-zinc-500 font-medium">Lead → Booking</span>
+                <span class="font-semibold flex items-center gap-1" style="color:#ef4444">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    Funnel
+                </span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- SECONDARY ROW -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-2">
+
+    <!-- Performance bars -->
+    <div class="glass rounded-2xl p-6 lg:col-span-2" data-animate="fade-up">
+        <div class="flex items-center justify-between mb-1">
+            <h3 class="display-font text-xl font-semibold text-white">Weekly Performance</h3>
+            <span class="pill text-zinc-400 text-[11px]">Last 7 days</span>
+        </div>
+        <p class="text-sm text-zinc-500 mb-7">A snapshot of how your funnel has been moving.</p>
+
+        <div class="flex items-end gap-2 h-36" id="perfBars">
+            <div class="flex-1 rounded-t-md" data-bar="35"></div>
+            <div class="flex-1 rounded-t-md" data-bar="55"></div>
+            <div class="flex-1 rounded-t-md" data-bar="42"></div>
+            <div class="flex-1 rounded-t-md" data-bar="78"></div>
+            <div class="flex-1 rounded-t-md" data-bar="60"></div>
+            <div class="flex-1 rounded-t-md" data-bar="92" data-bar-peak></div>
+            <div class="flex-1 rounded-t-md" data-bar="70"></div>
+        </div>
+        <div class="flex justify-between text-[10.5px] text-zinc-600 font-semibold mt-3 tracking-[0.18em]">
+            <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+        </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="glass rounded-2xl p-6" data-animate="fade-up">
+        <h3 class="display-font text-xl font-semibold text-white mb-1">Quick Actions</h3>
+        <p class="text-sm text-zinc-500 mb-5">Jump straight to common tasks.</p>
+        <div class="space-y-2.5">
+            <a href="{% url 'leads' %}" class="flex items-center justify-between px-3.5 py-3 rounded-xl border border-white/5 hover:border-red-500/30 hover:bg-red-500/[0.03] transition group">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center group-hover:border-red-500/30 transition">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    </div>
+                    <span class="text-sm font-medium text-white">View Leads</span>
+                </div>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-zinc-600 group-hover:text-red-500 group-hover:translate-x-0.5 transition"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="{% url 'bookings' %}" class="flex items-center justify-between px-3.5 py-3 rounded-xl border border-white/5 hover:border-red-500/30 hover:bg-red-500/[0.03] transition group">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center group-hover:border-red-500/30 transition">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <span class="text-sm font-medium text-white">View Bookings</span>
+                </div>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-zinc-600 group-hover:text-red-500 group-hover:translate-x-0.5 transition"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="{% url 'automation' %}" class="flex items-center justify-between px-3.5 py-3 rounded-xl border border-white/5 hover:border-red-500/30 hover:bg-red-500/[0.03] transition group">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center group-hover:border-red-500/30 transition">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    </div>
+                    <span class="text-sm font-medium text-white">Run Automation</span>
+                </div>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="text-zinc-600 group-hover:text-red-500 group-hover:translate-x-0.5 transition"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+    </div>
+
+</div>
+<div class="glass rounded-2xl p-6 mt-6">
+  <h3 class="text-xl text-white mb-4">Recent Payments</h3>
+  <div id="paymentsList"></div>
+</div>
+
+<script>
+    fetch("/recent-payments/")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("paymentsList");
+
+    if(data.length === 0){
+      container.innerHTML = "<p style='color:#888'>No payments yet</p>";
+      return;
+    }
+
+    container.innerHTML = data.map(p => `
+      <div style="margin-bottom:10px">
+        ${p.user || "User"} - ₹${(p.amount/100).toFixed(0)} - ${p.status}
+      </div>
+    `).join("");
+  });
+</script>
+
+<script>
+/* ====== ORIGINAL API LOGIC — DO NOT REMOVE ====== */
+API.getDashboard().then(data => {
+    document.getElementById("leads").innerText = data.total_leads;
+    document.getElementById("bookings").innerText = data.total_bookings;
+    document.getElementById("conversion").innerText = data.conversion_rate + "%";
+
+    /* ====== Premium counter animation (visual only) ====== */
+    if (typeof gsap !== 'undefined') {
+        ['leads', 'bookings'].forEach(id => {
+            const el = document.getElementById(id);
+            const end = parseInt(el.innerText, 10) || 0;
+            const obj = { v: 0 };
+            gsap.fromTo(obj, { v: 0 }, {
+                v: end, duration: 1.1, ease: 'power2.out',
+                onUpdate: () => { el.innerText = Math.round(obj.v); }
+            });
+        });
+        const conv = document.getElementById('conversion');
+        const convEnd = parseFloat(conv.innerText) || 0;
+        const cObj = { v: 0 };
+        gsap.fromTo(cObj, { v: 0 }, {
+            v: convEnd, duration: 1.1, ease: 'power2.out',
+            onUpdate: () => { conv.innerText = cObj.v.toFixed(0) + '%'; }
+        });
+    }
+});
+
+/* ====== Performance bars animation (visual only) ====== */
+(function () {
+    const bars = document.querySelectorAll('#perfBars [data-bar]');
+    bars.forEach(b => {
+        const peak = b.hasAttribute('data-bar-peak');
+        b.style.background = peak
+            ? 'linear-gradient(180deg, #ef4444, #991b1b)'
+            : 'linear-gradient(180deg, #dc2626, #7f1d1d)';
+        if (peak) b.style.boxShadow = '0 -6px 24px rgba(220,38,38,0.45)';
+        b.style.height = '0%';
+    });
+    if (typeof gsap !== 'undefined') {
+        gsap.to('#perfBars [data-bar]', {
+            height: i => bars[i].dataset.bar + '%',
+            duration: 0.9,
+            ease: 'power3.out',
+            stagger: 0.06,
+            delay: 0.3
+        });
+    } else {
+        bars.forEach(b => b.style.height = b.dataset.bar + '%');
+    }
+})();
+</script>
+
+{% endblock %}

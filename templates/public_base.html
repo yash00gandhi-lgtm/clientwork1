@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fitness Place</title>
+
+<style>
+body{
+  margin:0;
+  font-family:system-ui;
+  background:#0a0a0a;
+  color:white;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:40px 20px;
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  padding:20px;
+  border-bottom:1px solid #111;
+}
+
+.logo{
+  color:white;
+  font-weight:600;
+}
+
+.btn{
+  background:#dc2626;
+  padding:10px 16px;
+  border-radius:10px;
+  color:white;
+  text-decoration:none;
+}
+</style>
+
+</head>
+<body>
+
+<div class="nav">
+  <div class="logo">Fitness Place</div>
+  <a href="/" class="btn">Home</a>
+</div>
+
+<div class="container">
+{% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

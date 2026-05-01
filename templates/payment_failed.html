@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Failed — IRONFORGE</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #050505;
+    --card: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.08);
+    --red-dark: #8B0000;
+    --red-mid: #cc0000;
+    --red-bright: #ff1a1a;
+    --red-glow: rgba(255,26,26,0.25);
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.6);
+    --white-faint: rgba(255,255,255,0.3);
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(139,0,0,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* GLITCH LINES */
+  .glitch-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow-y: auto;
+  }
+
+  .glitch-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: rgba(255,26,26,0.15);
+    animation: glitchLine 4s ease-in-out infinite;
+  }
+
+  .glitch-line:nth-child(1) { top: 20%; animation-delay: 0s; }
+  .glitch-line:nth-child(2) { top: 45%; animation-delay: 1.2s; }
+  .glitch-line:nth-child(3) { top: 70%; animation-delay: 2.4s; }
+
+  @keyframes glitchLine {
+    0%, 90%, 100% { opacity: 0; transform: scaleX(0); transform-origin: left; }
+    50% { opacity: 1; transform: scaleX(1); }
+    55% { opacity: 0.3; transform: scaleX(0.8); }
+    60% { opacity: 1; transform: scaleX(1); }
+  }
+
+  .failed-wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 520px;
+    padding: 24px;
+  }
+
+  /* ICON */
+  .failed-icon-ring {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 40px;
+    opacity: 0;
+  }
+
+  .ring-outer {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255,26,26,0.25);
+    animation: errorPulse 2.5s ease-in-out infinite;
+  }
+
+  .ring-mid {
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,26,26,0.4);
+    animation: errorPulse 2.5s ease-in-out infinite 0.4s;
+  }
+
+  .icon-circle {
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139,0,0,0.2), rgba(80,0,0,0.1));
+    border: 2px solid var(--red-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px var(--red-glow), inset 0 0 20px rgba(255,26,26,0.05);
+    animation: errorShake 0.4s ease 1s;
+  }
+
+  @keyframes errorPulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.06); }
+  }
+
+  @keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
+
+  .x-svg { width: 28px; height: 28px; }
+  .x-path-1, .x-path-2 {
+    stroke-dasharray: 32;
+    stroke-dashoffset: 32;
+  }
+
+  .x-path-1 { animation: drawX 0.3s ease 0.7s forwards; }
+  .x-path-2 { animation: drawX 0.3s ease 0.9s forwards; }
+
+  @keyframes drawX { to { stroke-dashoffset: 0; } }
+
+  /* TEXT */
+  .failed-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 4px;
+    text-align: center;
+    opacity: 0;
+    background: linear-gradient(135deg, var(--red-bright), var(--red-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    line-height: 0.95;
+  }
+
+  .failed-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white-faint);
+    text-align: center;
+    margin-bottom: 48px;
+    opacity: 0;
+  }
+
+  /* ERROR CARD */
+  .error-card {
+    width: 100%;
+    background: rgba(139,0,0,0.06);
+    border: 1px solid rgba(255,26,26,0.2);
+    border-radius: 20px;
+    padding: 28px 32px;
+    backdrop-filter: blur(20px);
+    margin-bottom: 32px;
+    opacity: 0;
+    position: relative;
+    overflow-y: auto;
+  }
+
+  .error-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,26,26,0.5), transparent);
+  }
+
+  .error-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 4px 0;
+  }
+
+  .error-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--red-bright);
+    margin-top: 7px;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px var(--red-bright);
+  }
+
+  .error-text {
+    font-size: 14px;
+    color: var(--white-dim);
+    line-height: 1.5;
+  }
+
+  .error-title-row {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,26,26,0.8);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .error-title-row::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,26,26,0.15);
+  }
+
+  /* INFO STRIP */
+  .info-strip {
+    width: 100%;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    opacity: 0;
+  }
+
+  .strip-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .strip-row:last-child { border-bottom: none; }
+
+  .strip-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white-faint);
+  }
+
+  .strip-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.5px;
+  }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    opacity: 0;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.34,1.2,0.64,1);
+  }
+
+  .btn-red {
+    background: linear-gradient(135deg, var(--red-bright), var(--red-dark));
+    color: white;
+    box-shadow: 0 8px 28px rgba(255,26,26,0.3);
+  }
+
+  .btn-red:hover { box-shadow: 0 12px 36px rgba(255,26,26,0.5); transform: translateY(-2px); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--white-dim);
+  }
+
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.35); transform: translateY(-2px); color: var(--white); }
+
+  /* SUPPORT NOTE */
+  .support-note {
+    margin-top: 28px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.2);
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 1px;
+    opacity: 0;
+  }
+
+  .support-note a { color: rgba(255,26,26,0.5); text-decoration: none; }
+  .support-note a:hover { color: var(--red-bright); }
+
+  @media (max-width: 480px) {
+    .failed-title { font-size: 48px; }
+    .btn-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glitch-overlay">
+  <div class="glitch-line"></div>
+  <div class="glitch-line"></div>
+  <div class="glitch-line"></div>
+</div>
+
+<div class="failed-wrap">
+  <div class="failed-icon-ring" id="failedIcon">
+    <div class="ring-outer"></div>
+    <div class="ring-mid"></div>
+    <div class="icon-circle">
+      <svg class="x-svg" viewBox="0 0 28 28" fill="none">
+        <path class="x-path-1" d="M7 7l14 14" stroke="#ff1a1a" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="x-path-2" d="M21 7L7 21" stroke="#ff1a1a" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <h1 class="failed-title" id="failedTitle">PAYMENT<br>FAILED</h1>
+  <p class="failed-sub" id="failedSub">Transaction could not be completed</p>
+
+  <div class="error-card" id="errorCard">
+    <div class="error-title-row">Possible reasons</div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="error-row">
+        <div class="error-dot"></div>
+        <p class="error-text">Insufficient funds or card limit exceeded</p>
+      </div>
+      <div class="error-row">
+        <div class="error-dot"></div>
+        <p class="error-text">Bank declined the transaction for security</p>
+      </div>
+      <div class="error-row">
+        <div class="error-dot"></div>
+        <p class="error-text">Incorrect OTP or session timeout</p>
+      </div>
+      <div class="error-row">
+        <div class="error-dot"></div>
+        <p class="error-text">Network interruption during payment</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-strip" id="infoStrip">
+    <div class="strip-row">
+      <span class="strip-label">Plan</span>
+      <span class="strip-value" id="failPlan">Pro</span>
+    </div>
+    <div class="strip-row">
+      <span class="strip-label">Amount</span>
+      <span class="strip-value" id="failAmount">₹1,499</span>
+    </div>
+    <div class="strip-row">
+      <span class="strip-label">Status</span>
+      <span class="strip-value" style="color:var(--red-bright)">Failed</span>
+    </div>
+  </div>
+
+  <div class="btn-row" id="btnRow">
+    <a href="/pricing/" class="btn btn-red">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Retry Payment
+    </a>
+    <a href="/pricing/" class="btn btn-ghost">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Pricing
+    </a>
+  </div>
+
+  <p class="support-note" id="supportNote">
+    Amount not charged &nbsp;·&nbsp; <a href="mailto:support@ironforge.in">support@ironforge.in</a>
+  </p>
+</div>
+
+<script>
+  // Populate plan/amount from session
+  const plan   = sessionStorage.getItem('rzp_plan')   || 'Pro';
+  const amount = sessionStorage.getItem('rzp_amount') || '₹1,499';
+  document.getElementById('failPlan').textContent   = plan;
+  document.getElementById('failAmount').textContent = amount;
+
+  // GSAP animations
+  gsap.set(['#failedTitle','#failedSub','#errorCard','#infoStrip','#btnRow','#supportNote'], { y: 24, opacity: 0 });
+
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.to('#failedIcon',   { opacity: 1, scale: 1, duration: 0.7, delay: 0.2, ease: 'back.out(1.5)' })
+    .to('#failedTitle',  { opacity: 1, y: 0, duration: 0.6 }, '-=0.3')
+    .to('#failedSub',    { opacity: 1, y: 0, duration: 0.5 }, '-=0.4')
+    .to('#errorCard',    { opacity: 1, y: 0, duration: 0.6 }, '-=0.3')
+    .to('#infoStrip',    { opacity: 1, y: 0, duration: 0.5 }, '-=0.3')
+    .to('#btnRow',       { opacity: 1, y: 0, duration: 0.5 }, '-=0.3')
+    .to('#supportNote',  { opacity: 1, y: 0, duration: 0.4 }, '-=0.2');
+
+  gsap.set('#failedIcon', { scale: 0.6 });
+</script>
+</body>
+</html>
