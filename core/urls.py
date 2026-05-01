@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from django.shortcuts import redirect
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -32,7 +32,7 @@ urlpatterns = [
     # 🔥 APIs (OPTIONAL - agar alag rakhna chahe)
     path('api/', include('dashboard.urls')),
     path('api/', include('leads.urls')),
-    path('accounts/login/', lambda request: redirect('/')),
+    path('api/auth/', include('accounts.urls')),
     path('api/automation/', include('automation.urls')),
     path('api/', include('bookings.urls')),
 ]

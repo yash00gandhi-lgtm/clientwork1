@@ -12,7 +12,7 @@ from django.shortcuts import render
 
 from django.contrib.auth.decorators import login_required
 
-@login_required(login_url='/api/auth/')
+@login_required(login_url='/api/auth/login/')
 def dashboard_page(request):
     return render(request, 'dashboard.html')
 
@@ -35,6 +35,7 @@ def dashboard_stats(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def generate_report(request):
     total_leads = Lead.objects.count()
     total_bookings = Booking.objects.filter(status='confirmed').count()
@@ -67,6 +68,7 @@ from django.db.models import Count
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def dashboard_analytics(request):
     today = timezone.now().date()
     last_7_days = today - timedelta(days=6)
