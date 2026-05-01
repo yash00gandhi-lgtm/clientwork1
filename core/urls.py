@@ -32,6 +32,7 @@ urlpatterns = [
     # 🔥 APIs (OPTIONAL - agar alag rakhna chahe)
     path('api/', include('dashboard.urls')),
     path('api/', include('leads.urls')),
+    path('accounts/login/', lambda request: redirect('/')),
     path('api/automation/', include('automation.urls')),
     path('api/', include('bookings.urls')),
 ]

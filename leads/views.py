@@ -64,7 +64,7 @@ class LeadViewSet(ModelViewSet):
             try:
                 send_lead_notification(lead)
             except Exception as e:
-                print("❌ AUTOMATION ERROR:", str(e))
+                print("❌ EMAIL FAILED BUT LEAD SAVED:", str(e))
 
         return Response({
             "status": "success",
@@ -159,32 +159,37 @@ from django.conf import settings
 
 from django.http import JsonResponse
 
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def create_payment(request):
-    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    try:
+        data = json.loads(request.body)
 
-    data = json.loads(request.body)
-    customer_name = data.get("customer_name")
-    amount = int(data.get("amount", 50000))
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
-    order = client.order.create({
-        "amount": amount,
-        "currency": "INR",
-        "payment_capture": 1
-    })
+        amount = int(data.get("amount", 50000))
 
-    # DB me save
-    Payment.objects.create(
-    user=request.user,
-    amount=amount,
-    order_id=order['id'],
-    customer_name=data.get("customer_name")
-)
+        order = client.order.create({
+            "amount": amount,
+            "currency": "INR",
+            "payment_capture": 1
+        })
 
-    return JsonResponse({
-        "order_id": order['id'],
-        "key": settings.RAZORPAY_KEY_ID,
-        "amount": amount
-    })
+        Payment.objects.create(
+            amount=amount,
+            order_id=order['id'],
+            customer_name=data.get("customer_name", "Guest")
+        )
+
+        return JsonResponse({
+            "order_id": order['id'],
+            "key": settings.RAZORPAY_KEY_ID,
+            "amount": amount
+        })
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 import json
 from django.views.decorators.csrf import csrf_exempt
